@@ -112,7 +112,7 @@
 						marker.addListener('click', function(){
 							infoWindow.setContent("<h5>" + title + "</h5><p>" + address + "</p>");
 							infoWindow.open(map, marker);
-						})
+						});
 					} else {
 						alert('Geocode was not successul for the following reason: ' + status);
 					}
