@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Made in Kent</title>
+    
+    
+      <!-- Bootstrap -->
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+      <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
+      <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+        
+        
+        <!-- Leaflet.js files -->
+	<!-- 	
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+        <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	-->
+        <!-- Map CSS inline for now -->
+        <style>
+            html, body {
+                height: 700px;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                height: 100%; 
+            }
+        </style>   
+</head>
+
+<body>
+    
+    <!-- Nav bar Div-->
+    <div>
+        <nav class="navbar navbar-default navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="images/kent-wa-logo.png">
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">Action</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li class="dropdown-header">Nav header</li>
+                    <li><a href="#">Separated link</a></li>
+                    <li><a href="#">One more separated link</a></li>
+                  </ul>
+                </li>
+              </ul>
+              <ul class="nav navbar-nav navbar-right navbar-collapse collapse">
+                <li><a href="../navbar/">Menu</a></li>
+                <li><a href="../navbar-static-top/">Another tab</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Menu <span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Menu 1</a></li>
+                    <li><a href="#">Menu 2</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li class="dropdown-header">Nav header</li>
+                    <li><a href="#">Separated link</a></li>
+                    <li><a href="#">One more separated link</a></li>
+                  </ul>
+                </li>
+                <!--<li class="active"><a href="./">Fixed top <span class="sr-only">(current)</span></a></li>-->
+              </ul>
+            </div><!--/.nav-collapse -->
+          </div><!-- Container-->
+        </nav>          
+    </div>
+
+
+    <!-- Div to Display the map-->
+    <div id="map"></div>
+
+
+    <!-- Script to run the map -->
+    <script>
+          var map;
+          function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+              center: {lat: 47.4276132, lng: -122.2513806},//47.4276132, -122.2513806
+              zoom: 14
+            });
+			
+			var geocoder = new google.maps.Geocoder();
+			var infoWindow = new google.maps.InfoWindow({content:"Information"});
+			
+			function geocodeAddress(address, geocoder, map, title) {
+				
+				geocoder.geocode({'address': address}, function(results, status){
+					if (status === google.maps.GeocoderStatus.OK){
+						//map.setCenter(results[0].geometry.location);
+						console.log(title + ": " + results[0].geometry.location);
+						var marker = new google.maps.Marker({
+							map: map,
+							position: results[0].geometry.location,
+							title: title
+						});
+						marker.addListener('click', function(){
+							infoWindow.setContent("<h5>" + title + "</h5><p>" + address + "</p>");
+							infoWindow.open(map, marker);
+						})
+					} else {
+						alert('Geocode was not successul for the following reason: ' + status);
+					}
+				});
+			}
+			
+			var airways = '6644 S. 196th St. T-100, Kent, WA 98032';
+			var sidetrack = '27010 78th Ave S., Kent, WA 98032';
+			var sooscreekwine = '24012 172nd Ave. SE, Kent, WA 98042';
+			var creativeice = '19423 66TH AVE S #Q-105, Kent, WA 98032';
+			var blueorigin = '21218 76TH AVE S, Kent, WA 98032';
+			var adventuregear = '7857 S 180TH ST, Kent, WA 98032';
+			var cleanshot = '6849 S 220TH, Kent, WA 98032';
+			
+			geocodeAddress(airways, geocoder, map, 'Airways Brewing');
+			geocodeAddress(sidetrack, geocoder, map, 'Sidetrack Distillery');
+			geocodeAddress(sooscreekwine, geocoder, map, 'Soos Creek Wine Cellers');
+			geocodeAddress(creativeice, geocoder, map, 'Creative Ice');
+			geocodeAddress(blueorigin, geocoder, map, 'Blue Origin');
+			geocodeAddress(adventuregear, geocoder, map, 'Sherpa Adventure Gear');
+			geocodeAddress(cleanshot, geocoder, map, 'Clean-Shot Archery');
+			
+          }
+    </script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVt8aXjF0XkGVkgeU0cyVAxkJT1EVulKc&callback=initMap"
+    async defer></script>
+</body>
+</html>
