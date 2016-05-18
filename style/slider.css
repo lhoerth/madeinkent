@@ -47,4 +47,11 @@ body{
     animation-delay:#{$total_animation_time - $time_per_slide * $index}s
   }
 }
-   
+
+
+.masthead img{
+                
+                width: 100%;
+               
+                background-repeat:no-repeat;
+            }
