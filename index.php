@@ -14,7 +14,7 @@
 	
 	// 
 		
-?> 
+?>
 <!DOCTYPE html>
 
 <html>
@@ -32,6 +32,27 @@
 	<link rel="stylesheet" href="style/style.css" type="text/css">
 	
 	<link rel="stylesheet" href="js/unslider-master/dist/css/unslider.css">
+
+	<script>
+		$(document).ready(function() {
+			var SCROLL_LEVEL = 140;
+		  
+			$(window).scroll(function () {
+				//if you hard code, then use console
+				//.log to determine when you want the 
+				//nav bar to stick.  
+				// console.log($(window).scrollTop())
+			  if ($(window).scrollTop() > SCROLL_LEVEL) {
+				$('#nav_bar').addClass('navbar-fixed');
+				$('#banner').addClass('banner-scrolled');
+			  }
+			  if ($(window).scrollTop() <= SCROLL_LEVEL) {
+				$('#nav_bar').removeClass('navbar-fixed');
+				$('#banner').removeClass('banner-scrolled');
+			  }
+			});
+		});
+	</script>
 	
 
 </head>
@@ -47,11 +68,11 @@
     <div id="banner">
         
         <h1>Welcome to MadeInKent</h1>
-        <p>See the interesting stuff people make here in the city of Kent.</p>
+        <p>See the interesting stuff made here in the city of Kent.</p>
     </div>
     <!-- Nav bar-->
 
-        <nav class="navbar navbar-inverse" role="navigation">
+        <nav class="navbar navbar-inverse" id="nav_bar" role="navigation">
           <div class="container">
             <div class="navbar-header">
               <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -73,44 +94,26 @@
             </div><!--/.nav-collapse -->
           </div><!-- Container-->
         </nav>          
-    
-    <!-- Nav bar Div
-    <div class="navbar navbar-inverse" role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-              
-            </div>
-        </div>    
-        <div class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="index.html">Home</a></li>
-            <li><a href="content.html">Divisions</a></li>
-            <li><a href="#projects">Projects</a></li>
-            <li><a href="#faqs">FAQs</a></li>
-            <li><a href="#resources">Resources</a></li>
-            <li><a href="#contact">Contact Us</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
-    <!--</div>-->
 
-
-
-
-
+	<!-- Panel left of map -->
+	<div id="lpanel" class="col-md-1"></div>
     <!-- Div to Display the map-->
-    <div id="map"></div>
-       <div id="over_map"> </div>
+    <div class="col-md-6" id="map"></div>
+    <!-- <div id="over_map"> </div> -->
 
 
-    <div id="infoPanel"></div>
+    <div id="infoPanel" class="col-md-5"></div>
     
-   
+   <!-- <footer>
+    <div style="z-index: -5" class="navbar navbar-inverse navbar-bottom" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          
+        </div>
+      </div>
+    </div>
+  </footer>
+  -->
 
 <!-- Script to run the map. Markers should be the last thing to load on the page.--> 
 
@@ -124,12 +127,19 @@
 	$result = $dbh->query($sql);
 ?>
 	<script>
+		
+		String.prototype.toCamel = function(){
+			var re = /(\b[a-z](?!\s))/g;
+			return this.toLowerCase().replace(re, function(x){
+				return x.toUpperCase();
+			});
+		};
 		var map;
 		function initMap() {
 			map = new google.maps.Map(document.getElementById('map'), {
-				// centered on Kent valley (using creaive ice geocode)
-				center: {lat: 47.4276132, lng: -122.2513806},
-				zoom: 13,
+				// centered on Kent valley (using "Ramco" geocode)
+				center: {lat: 47.4114548, lng: -122.2395776},
+				zoom: 14,
 				mapTypeId: google.maps.MapTypeId.HYBRID
 			});
 		
@@ -146,18 +156,18 @@
 				console.log(place);
 				console.log(place.photos); 
 				
-				infoWindow.setContent("<h5>" + place.name + "</h5><p>" + place.formatted_address + "</p>" );				    
-				infoPanel.innerHTML = "<h2>" + place.name + "</h2>" + 
-				"<p>" + place.formatted_address + "</p>";
+				//infoWindow.setContent();				    
+				infoPanel.innerHTML = "<h2>" + place.name + "</h2><p>" + place.formatted_address + "</p><div class=\"form\">";
 				
 				if (typeof place.website != 'undefined') {
-					infoPanel.innerHTML += "<a href=\"" + place.website + "\" target=\"_blank\">Website: " + place.website + "</a>";
+					
+					infoPanel.innerHTML += "<fieldset class=\"form-group\"><legend>Website: </legend><p><a href=\"" + place.website + "\" target=\"_blank\">" + place.website + "</a></p><p><a href=\"" + place.website + "\"><img alt=\"" + place.name + " - website thumbnail\" src=\"http://free.pagepeeker.com/v2/thumbs.php?size=l&url=" + place.website.replace(/^https?\:\/\//i, "") + "\"></a></p></fieldset>";
 				}
 				 
 				
 				
 				if (typeof place.photos != 'undefined') {
-					infoPanel.innerHTML += "<div class=\"my-slider\"><ul id=\"slider\"></ul></div>";
+					infoPanel.innerHTML += "<div class=\"my-slider form-group\"><ul id=\"slider\"></ul></div>";
 					var slider = document.getElementById('slider');
 					for (let photo of place.photos) {
 						photoOpt = {'maxWidth': 400, 'maxHeight': 400};
@@ -165,6 +175,8 @@
 					}
 					$('.my-slider').unslider()
 				}
+				
+				infoPanel.innerHTML += "</div>";
 			  }
 			}
 			
@@ -192,8 +204,9 @@
 				});
 				
 				marker.addListener('click', function(){
-					infoWindow.setContent("<h5>" + marker.getTitle() + "</h5><p>" + address + "</p>");
-					infoPanel.innerHTML = infoWindow.content;
+					//infoWindow.setContent("<h5>" + marker.getTitle() + "</h5><p>" + address + "</p>");
+					console.log(placeTitle.toCamel());
+					infoPanel.innerHTML = "<h2>" + placeTitle.toCamel() + "</h2><p>" + address + "</p>";
 					//infoWindow.open(map, marker);
 					
 					// request place info
