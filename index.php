@@ -102,7 +102,10 @@
     <!-- <div id="over_map"> </div> -->
 
 
-    <div id="infoPanel" class="col-md-5"></div>
+    <div id="infoPanel" class="col-md-5">
+		<h2>Click a pin on the map</h2>
+		<p>See more information about a business by clicking its map marker.</p>
+	</div>
     
    <!-- <footer>
     <div style="z-index: -5" class="navbar navbar-inverse navbar-bottom" role="navigation">
@@ -123,7 +126,7 @@
 	error_reporting(E_ALL);
 	
 	// FOR TESTING: LIMIT here is the max number of rows to provide 
-	$sql = "SELECT `BUSINESS NAME`, `ADDRESS LINE 1`, `CITY, STATE & ZIPCODE` FROM `kentbiz` WHERE (`NAICS` RLIKE '^3[1-3].*' OR `SIC` RLIKE '^[23].*')";
+	$sql = "SELECT `BUSINESS NAME`, `ADDRESS LINE 1`, `CITY, STATE & ZIPCODE`, `FULL`, `PART` FROM `kentbiz` WHERE (`NAICS` RLIKE '^3[1-3].*' OR `SIC` RLIKE '^[23].*')";
 	$result = $dbh->query($sql);
 ?>
 	<script>
@@ -147,7 +150,10 @@
 			var placeService = new google.maps.places.PlacesService(map);
 			var geocoder = new google.maps.Geocoder();
 			var infoWindow = new google.maps.InfoWindow({content:"Information"});
-			var address;
+			var address = "";
+			var title = "";
+			//var nEmployees = 0;
+			var companySize = "Unknown";
 			var markers = [];
 			
 			function placeDetails(place, status) {
@@ -157,11 +163,24 @@
 				console.log(place.photos); 
 				
 				//infoWindow.setContent();				    
-				infoPanel.innerHTML = "<h2>" + place.name + "</h2><p>" + place.formatted_address + "</p><div class=\"form\">";
+				infoPanel.innerHTML = 
+					"<h2>" + place.name + "</h2>" + 
+					"<p>" + place.formatted_address + "</p>" + 
+					"<h4>Company size: " + companySize + "</h4>" +
+					"<div class=\"form\">";
 				
-				if (typeof place.website != 'undefined') {
-					
-					infoPanel.innerHTML += "<fieldset class=\"form-group\"><legend>Website: </legend><p><a href=\"" + place.website + "\" target=\"_blank\">" + place.website + "</a></p><p><a href=\"" + place.website + "\"><img alt=\"" + place.name + " - website thumbnail\" src=\"http://free.pagepeeker.com/v2/thumbs.php?size=l&url=" + place.website.replace(/^https?\:\/\//i, "") + "\"></a></p></fieldset>";
+				if (typeof place.website != 'undefined') {					
+					infoPanel.innerHTML += 
+					"<fieldset class=\"form-group\">" + 
+						"<legend>Website: </legend>" + 
+						"<p><a href=\"" + place.website + "\" target=\"_blank\">" + place.website + "</a>"
+						+ "</p>" + 
+						"<p><a href=\"" + place.website + "\"><img " + 
+							"alt=\"" + place.name + " - website thumbnail\" " + 
+							"src=\"http://free.pagepeeker.com/v2/thumbs.php?size=l&url=" 
+							+ place.website.replace(/^https?\:\/\//i, "") + "\"></a>" + 
+						"</p>" + 
+					"</fieldset>";
 				}
 				 
 				
@@ -195,7 +214,7 @@
 				}
 			}
 			
-			function addMarker(point, placeTitle, address) {
+			function addMarker(point, placeTitle, address, coSize) {
 				var marker = new google.maps.Marker({
 					map: map,
 					position: new google.maps.LatLng(point),
@@ -204,9 +223,15 @@
 				});
 				
 				marker.addListener('click', function(){
+					companySize = coSize;
+					
 					//infoWindow.setContent("<h5>" + marker.getTitle() + "</h5><p>" + address + "</p>");
-					console.log(placeTitle.toCamel());
-					infoPanel.innerHTML = "<h2>" + placeTitle.toCamel() + "</h2><p>" + address + "</p>";
+					//console.log(placeTitle.toCamel());
+					infoPanel.innerHTML = 
+						"<h2>" + placeTitle.toCamel() + "</h2>" + 
+						"<p>" + address + 
+						"</p>" + 
+						"<h4>Company size: " + coSize + "</h4>";
 					//infoWindow.open(map, marker);
 					
 					// request place info
@@ -244,14 +269,14 @@
 				
 			
 			
-			function geocodeFromGoogle(title, address, token) {
+			function geocodeFromGoogle(title, address, token, coSize) {
 				// TEST
 				// cacheGeocode(title, address, {lat: 47.4276132, lng: -122.2513806}, token);
 				geocoder.geocode({'address': address}, function(results, status){
 					if (status === google.maps.GeocoderStatus.OK){
 						//console.log(results[0].geometry.location.lat());
 						cacheGeocode(address, results[0].geometry.location, token);
-						addMarker(results[0].geometry.location.toJSON(), title, address);
+						addMarker(results[0].geometry.location.toJSON(), title, address, coSize);
 					} else {
 						console.log('Geocode was not successul for the following reason: ' + status);
 					}
@@ -265,16 +290,44 @@
 				unset($address);
 				$address = $row['ADDRESS LINE 1'] . ', ' . $row['CITY, STATE & ZIPCODE'];
 				$title = $row['BUSINESS NAME'];
+				$companySize = "Unknown number of";
+				
+				// No. of employees = No. of fulltime + No. of parttime.
+				$nEmployees = intval($row['FULL']) + intval($row['PART']);
+				
+				if ($nEmployees < 50){
+					$companySize = "0 - 49";
+				}
+				else if ($nEmployees < 100){
+					$companySize = "50 - 99";
+				}
+				else if ($nEmployees < 150){
+					$companySize = "100 - 149";
+				}
+				else if ($nEmployees < 200){
+					$companySize = "150 - 199";
+				}
+				else if ($nEmployees >= 200){
+					$companySize = "200+";
+				}
+				
+				$companySize = $companySize . " employees.";
 		?>
 				address = <?php echo '"', $address, '"'; ?>;
 				title = <?php echo '"', $title, '"'; ?>;
+				companySize = <?php echo '"', $companySize, '"'; ?>;
+				
+				console.log("full and part: ");
+				console.log(<?php echo '"', intval($row['FULL']), '"'; ?>);
+				console.log(<?php echo '"', intval($row['PART']), '"'; ?>);
+				console.log(<?php echo '"', $nEmployees, '"'; ?>)
 		<?php
 				include 'scripts/geocode.php';
 				if (!empty($location)) {
 					// cached geocode...
 					echo 'console.log("Location From Cache: " + title);
 					console.log(' . $location . ');
-					addMarker(' . $location . ', title, address);';
+					addMarker(' . $location . ', title, address, companySize);';
 				}
 				else {
 					// need to cache the coordinates...
@@ -285,7 +338,7 @@
 					$_SESSION["$token"] = 1;
 					
 					?>
-					geocodeFromGoogle(title, address, <?='"', $token,'"';?>);
+					geocodeFromGoogle(title, address, <?='"', $token,'"';?>, companySize);
 					<?php
 				}
 			 } 
