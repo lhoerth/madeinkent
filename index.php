@@ -71,11 +71,15 @@
 				<p>See the interesting stuff made in the city of Kent, Washington</p>
 			</div>
 		</div>
-		<div id="navbar" class="navbar-collapse collapse">
-		  <ul class="nav navbar-nav navbar-right navbar-collapse collapse">
-			<li class="active"><a href="index.html">Home</a></li>
-			<li><a href="menu.html">Menu</a></li>
+		<div id="navbar" class="navbar-collapse collapse ">
+		  <ul class="nav navbar-nav navbar-right navbar-collapse collapse pull-xs-right">
+			<li class="active"><a href="index.php">Home</a></li>
+			
 			<li><a href="about.html">About</a></li>
+			
+			<li id="actBtn" class="navbar-btn">
+				<a href="http://kentwa.gov/content.aspx?id=2102" target="_blank" class="btn btn-default ">Add your business!</a>
+			</li>
 		  </ul>
 		</div><!--/.nav-collapse -->
 	  </div><!-- Container-->
@@ -98,6 +102,10 @@
 				<p>See more info about a business by clicking its pin.</p>
 			</div>
 		</div>
+	</div>
+	
+	<div id="legend">
+	  <p>Legend </p>
 	</div>
 	
 	<div id="myModal" class="modal fade" role="dialog">
@@ -149,10 +157,13 @@
 			
 			map = new google.maps.Map(document.getElementById('map'), {
 				// centered on Kent valley 
-				center: new google.maps.LatLng(47.40802772670872, -122.23185283803713),
+				center: new google.maps.LatLng(47.40924755801687, -122.24910480642092),
 				zoom: 14,
 				mapTypeId: google.maps.MapTypeId.HYBRID
 			});
+			
+			map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(
+				document.getElementById('legend'));
 			
 			var mapLabel = new MapLabel({
 				  text: 'Kent',
@@ -164,7 +175,7 @@
 				mapLabel.set('position', new google.maps.LatLng(47.40802772670872, -122.23185283803713));
 			
 			// uncomment to make label draggable and log dragend coords
-			/* 
+			/*
 			var zmarker = new google.maps.Marker();
 			zmarker.bindTo('map', mapLabel);
 			zmarker.bindTo('position', mapLabel);
@@ -255,70 +266,79 @@
 				icon: iconBase + 'paddle/T.png'
 			  },
 			// NAICS codes
-			  '311': {
+			  '311': { // A
 				icon: iconBase + 'pal5/icon48.png'
 			  },
-			  '312': {
+			  '312': { // B
 				icon: iconBase + 'pal5/icon49.png'
 			  },
-			  '313': {
+			  '313': { // C
 				icon: iconBase + 'pal5/icon50.png'
 			  },
-			  '314': {
+			  '314': { // D
 				icon: iconBase + 'pal5/icon51.png'
 			  },
-			  '315': {
+			  '315': { // E
 				icon: iconBase + 'pal5/icon52.png'
 			  },
-			  '316': {
+			  '316': { // F
 				icon: iconBase + 'pal5/icon53.png'
 			  },
-			  '321': {
+			  '321': { // G
 				icon: iconBase + 'pal5/icon54.png'
 			  },
-			  '322': {
+			  '322': { // H
 				icon: iconBase + 'pal5/icon55.png'
 			  },
-			  '323': {
+			  '323': { // I
 				icon: iconBase + 'pal5/icon40.png'
 			  },
-			  '324': {
+			  '324': { // J
 				icon: iconBase + 'pal5/icon41.png'
 			  },
-			  '325': {
+			  '325': { // K
 				icon: iconBase + 'pal5/icon42.png'
 			  },
-			  '326': {
+			  '326': { // L
 				icon: iconBase + 'pal5/icon43.png'
 			  },
-			  '327': {
+			  '327': { // M
 				icon: iconBase + 'pal5/icon44.png'
 			  },
-			  '331': {
+			  '331': { // N
 				icon: iconBase + 'pal5/icon45.png'
 			  },
-			  '332': {
+			  '332': { // O
 				icon: iconBase + 'pal5/icon46.png'
 			  },
-			  '333': {
+			  '333': { // P
 				icon: iconBase + 'pal5/icon47.png'
 			  },
-			  '334': {
+			  '334': { // Q
 				icon: iconBase + 'pal5/icon24.png'
 			  },
-			  '335': {
+			  '335': { // R
 				icon: iconBase + 'pal5/icon25.png'
 			  },
-			  '336': {
+			  '336': { // S
 				icon: iconBase + 'pal5/icon26.png'
 			  },
-			  '337': {
+			  '337': { // T
 				icon: iconBase + 'pal5/icon27.png'
 			  },
-			  '339': {
+			  '339': { // U
 				icon: iconBase + 'pal5/icon28.png'
 			  }
 			};
+			
+			var legend = document.getElementById('legend');
+			for (var i in icons) {
+				var name = i;
+				var icon = icons[i].icon;
+				var div = document.createElement('div');
+				div.innerHTML = '<img src="' + icon + '"> ' + name;
+				legend.appendChild(div);
+			}
 			
 			function placeDetails(place, status) {
 			  if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -423,7 +443,7 @@
 					placeService.nearbySearch(request, placeID);
 				}
 				
-				console.log("bizid: " + bizid);
+				//console.log("bizid: " + bizid);
 				
 				if (typeof icons[bizCode] != 'undefined'){
 					marker.setIcon(icons[bizCode].icon);
@@ -462,7 +482,7 @@
 				});
 				
 				marker.addListener('mouseover', function(){
-					console.log('nDivs: ' + nDivs + ' bizDiv height: ' + bizDiv.getBoundingClientRect().height)
+					//console.log('nDivs: ' + nDivs + ' bizDiv height: ' + bizDiv.getBoundingClientRect().height)
 					infoPanel.scrollTop = nDivs * (bizDiv.getBoundingClientRect().height + 10);
 					addClass(bizDiv, 'ipFocus');
 				});
@@ -594,7 +614,23 @@
 		?>
 			
 			// UNCOMMENT to cluster the markers
-			//var markerCluster = new MarkerClusterer(map, markers);
+			var markerCluster = new MarkerClusterer(map, markers);
+			
+			// Uncomment to aggregate and log stats about business codes
+			for (var i in icons) {
+				//console.log("ICON ELEMENT!");
+				console.log("ICON ELEMENT:  " + icons[i].icon + " bizCode: " + i);
+				var count = 0;
+				for (var j = 0; j < markers.length; j++) {
+					//console.log("marker: ");
+					//console.log(markers[j].getIcon());
+					if (markers[j].getIcon() == icons[i].icon) {
+						count++;
+					}
+				}
+				//console.log("AH AH AH!");
+				console.log(count);
+			}
         }
 		google.maps.event.addDomListener(window, 'load', initMap);
     </script>
